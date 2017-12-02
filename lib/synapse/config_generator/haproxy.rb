@@ -1085,9 +1085,9 @@ class Synapse::ConfigGenerator
         # server option changes, use that to potentially force a restart
         if backends.has_key?(backend_name)
           old_backend = backends[backend_name]
-          if (old_backend.fetch('haproxy_server_options', "") !=
-              backend.fetch('haproxy_server_options', ""))
-            log.info "synapse: restart required because haproxy_server_options changed for #{backend_name}"
+          if (old_backend.fetch('haproxy_server_options', '') != backend.fetch('haproxy_server_options', '')) ||
+              (old_backend.fetch('weight', '') != backend.fetch('weight', ''))
+            log.info "synapse: restart required because haproxy_server_options or weight changed for #{backend_name}"
             @restart_required = true
           end
         end
@@ -1153,6 +1153,7 @@ class Synapse::ConfigGenerator
               b = "#{b} cookie #{backend_name}"
             end
           end
+          b = "#{b} weight #{backend['weight']}" if backend['weight']
           b = "#{b} #{watcher_config['server_options']}" if watcher_config['server_options']
           b = "#{b} #{backend['haproxy_server_options']}" if backend['haproxy_server_options']
           b = "#{b} disabled" unless backend['enabled']

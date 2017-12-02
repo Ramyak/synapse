@@ -195,7 +195,7 @@ class Synapse::ServiceWatcher
       @watcher = @zk.register(@discovery['path'], &watcher_callback) unless @watcher
 
       # Verify that we actually set up the watcher.
-      unless @zk.exists?(@discovery['path'], :watch => true)
+      unless @zk.get(@discovery['path'], :watch => true)
         log.error "synapse: zookeeper watcher path #{@discovery['path']} does not exist!"
         zk_cleanup
       end
@@ -294,6 +294,7 @@ class Synapse::ServiceWatcher
         decoded = {}
       else
         decoded = @decode_method.call(data)
+        decoded.delete('non_service_config')
       end
 
       new_generator_config = {}
